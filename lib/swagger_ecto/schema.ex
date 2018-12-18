@@ -36,8 +36,8 @@ defmodule SwaggerEcto.Schema do
         [do: expr] when is_tuple(expr) -> [expr]
       end
 
-    schema = SwaggerEcto.Helpers.create_schema(source, exprs)
-    escaped = Macro.escape(schema)
+    schema = SwaggerEcto.Helpers.create_schema(source, exprs) |> Macro.escape
+    schema_list = SwaggerEcto.Helpers.create_schema_list(source, exprs) |> Macro.escape
     quote do
       {id, type, opts} = Module.get_attribute(__MODULE__, :primary_key)
 
@@ -45,8 +45,9 @@ defmodule SwaggerEcto.Schema do
       @primary_key_type type
       @primary_key_opts opts
 
-      def __schema__(:swagger) do
-        schema = unquote(escaped)
+      def __swagger__, do: __swagger__(:single)
+      def __swagger__(:single) do
+        schema = unquote(schema)
         id_type = if @primary_key_type == :id, do: :integer, else: :string
 
         %{schema |
@@ -57,6 +58,11 @@ defmodule SwaggerEcto.Schema do
             }
           })
         }
+        |> PhoenixSwagger.to_json
+      end
+
+      def __swagger__(:list) do
+        unquote(schema_list)
         |> PhoenixSwagger.to_json
       end
     end
@@ -70,11 +76,16 @@ defmodule SwaggerEcto.Schema do
         [do: expr] when is_tuple(expr) -> [expr]
       end
 
-    schema = SwaggerEcto.Helpers.create_schema(source, exprs)
-    escaped = Macro.escape(schema)
+    schema = SwaggerEcto.Helpers.create_schema(source, exprs) |> Macro.escape
+    schema_list = SwaggerEcto.Helpers.create_schema_list(source, exprs) |> Macro.escape
     quote do
-      def __schema__(:swagger) do
-        schema = unquote(escaped)
+      def __swagger__, do: __swagger__(:single)
+      def __swagger__(:single) do
+        schema = unquote(schema)
+        PhoenixSwagger.to_json(schema)
+      end
+      def __swagger__(:list) do
+        schema = unquote(schema_list)
         PhoenixSwagger.to_json(schema)
       end
     end

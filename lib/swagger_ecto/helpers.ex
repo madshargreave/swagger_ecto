@@ -11,6 +11,15 @@ defmodule SwaggerEcto.Helpers do
     }
   end
 
+  def create_schema_list(source, exprs) do
+    schema = create_schema(source, exprs)
+    %PhoenixSwagger.Schema{
+      title: Inflex.pluralize(schema.title),
+      type: :array,
+      items: PhoenixSwagger.Schema.ref(String.to_atom(schema.title))
+    }
+  end
+
   defp title(source) do
     source
     |> Inflex.singularize

@@ -13,7 +13,7 @@ defmodule SwaggerEcto.SchemaTest do
   end
 
   test "it defines a swagger schema" do
-    assert TestSchema.__schema__(:swagger) == %{
+    assert TestSchema.__swagger__() == %{
       "title" => "Person",
       "required" => [
         "id",
@@ -37,6 +37,16 @@ defmodule SwaggerEcto.SchemaTest do
     }
   end
 
+  test "it works with lists" do
+    assert TestSchema.__swagger__(:list) == %{
+      "title" => "People",
+      "type" => "array",
+      "items" => %{
+        "$ref" => "#/definitions/Person"
+      }
+    }
+  end
+
   defmodule TestSchemaWithBinaryId do
     use SwaggerEcto.Schema
 
@@ -48,7 +58,7 @@ defmodule SwaggerEcto.SchemaTest do
   end
 
   test "it works with custom ID directive" do
-    assert TestSchemaWithBinaryId.__schema__(:swagger) == %{
+    assert TestSchemaWithBinaryId.__swagger__() == %{
       "title" => "Person",
       "required" => [
         "uuid",
@@ -75,7 +85,7 @@ defmodule SwaggerEcto.SchemaTest do
   end
 
   test "it works with assocs" do
-    assert TestSchemaWithAssoc.__schema__(:swagger) == %{
+    assert TestSchemaWithAssoc.__swagger__() == %{
       "title" => "Person",
       "required" => [
         "id",
@@ -102,7 +112,7 @@ defmodule SwaggerEcto.SchemaTest do
   end
 
   test "it works with embeds" do
-    assert TestSchemaWithAssoc.__schema__(:swagger) == %{
+    assert TestSchemaWithAssoc.__swagger__() == %{
       "title" => "Person",
       "required" => [
         "id",
@@ -129,7 +139,7 @@ defmodule SwaggerEcto.SchemaTest do
   end
 
   test "it works with timestamps macro" do
-    assert TestSchemaWithTimestamps.__schema__(:swagger) == %{
+    assert TestSchemaWithTimestamps.__swagger__() == %{
       "title" => "Person",
       "required" => [
         "id",
@@ -158,7 +168,7 @@ defmodule SwaggerEcto.SchemaTest do
   end
 
   test "it works with embedded ecto schemas" do
-    assert EmbeddedSchema.__schema__(:swagger) == %{
+    assert EmbeddedSchema.__swagger__() == %{
       "title" => "Country",
       "required" => [
         "name"
@@ -167,6 +177,16 @@ defmodule SwaggerEcto.SchemaTest do
         "name" => %{
           "type" => "string"
         }
+      }
+    }
+  end
+
+  test "it works with embedded lists" do
+    assert EmbeddedSchema.__swagger__(:list) == %{
+      "title" => "Countries",
+      "type" => "array",
+      "items" => %{
+        "$ref" => "#/definitions/Country"
       }
     }
   end
