@@ -57,7 +57,7 @@ defmodule SwaggerEcto.Helpers do
       {:__aliases__, _, [type]},
       _opts
     ]
-  }) when op in [:has_one, :embeds_one] do
+  }) when op in [:has_one, :embeds_one, :belongs_to] do
     %{
       field => PhoenixSwagger.Schema.ref(type)
     }
