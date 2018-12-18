@@ -4,7 +4,7 @@ defmodule SwaggerEcto.SchemaTest do
   defmodule TestSchema do
     use SwaggerEcto.Schema
 
-    swagger_schema "person" do
+    swagger_schema "people" do
       field :name, :string
       field :country, :string
       field :age, :integer, required: false
@@ -41,7 +41,7 @@ defmodule SwaggerEcto.SchemaTest do
     use SwaggerEcto.Schema
 
     @primary_key {:uuid, :binary_id, []}
-    swagger_schema "person" do
+    swagger_schema "people" do
       field :name, :string
     end
 

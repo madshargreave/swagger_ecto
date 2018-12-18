@@ -12,7 +12,9 @@ defmodule SwaggerEcto.Helpers do
   end
 
   defp title(source) do
-    Macro.camelize(source)
+    source
+    |> Inflex.singularize
+    |> Macro.camelize
   end
 
   defp properties(exprs) do
@@ -32,7 +34,7 @@ defmodule SwaggerEcto.Helpers do
     end)
   end
 
-  defp property({:field, _, [field, type, opts]}) do
+  defp property({:field, _, [field, type, _opts]}) do
     %{
       field => %{
         type: type
@@ -51,7 +53,7 @@ defmodule SwaggerEcto.Helpers do
           expr
       end
     end)
-    |> Enum.reduce([], fn {operation, _, [field, type, opts]}, acc ->
+    |> Enum.reduce([], fn {_operation, _, [field, _type, opts]}, acc ->
       required = Keyword.get(opts, :required, true)
       if required do
         acc ++ [field]
