@@ -17,19 +17,19 @@ defmodule SwaggerEcto.Schema do
   defmacro swagger_schema(source, block) do
     quote do
       Ecto.Schema.schema unquote(source), unquote(block)
-      SwaggerEcto.Schema.schema unquote(source), unquote(block)
+      SwaggerEcto.Schema.define_schema unquote(source), unquote(block)
     end
   end
 
   defmacro swagger_embedded_schema(source, block) do
     quote do
       Ecto.Schema.embedded_schema unquote(block)
-      SwaggerEcto.Schema.embedded_schema unquote(source), unquote(block)
+      SwaggerEcto.Schema.define_embedded_schema unquote(source), unquote(block)
     end
   end
 
   @doc false
-  defmacro schema(source, block) do
+  defmacro define_schema(source, block) do
     exprs =
       case block do
         [do: {:__block__, _, exprs}] -> exprs
@@ -63,7 +63,7 @@ defmodule SwaggerEcto.Schema do
   end
 
   @doc false
-  defmacro embedded_schema(source, block) do
+  defmacro define_embedded_schema(source, block) do
     exprs =
       case block do
         [do: {:__block__, _, exprs}] -> exprs

@@ -4,7 +4,7 @@ defmodule SwaggerEcto.MixProject do
   def project do
     [
       app: :swagger_ecto,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -39,11 +39,11 @@ defmodule SwaggerEcto.MixProject do
   defp package do
     [
       # This option is only needed when you don't want to use the OTP application name
-      name: "ecto_swagger",
+      name: "swagger_ecto",
       # These are the default files included in the package
       files: ~w(lib .formatter.exs mix.exs),
       licenses: ["Apache 2.0"],
-      links: %{"GitHub" => "https://github.com/madshargreave/ecto_swagger"}
+      links: %{"GitHub" => "https://github.com/madshargreave/swagger_ecto"}
     ]
   end
 
