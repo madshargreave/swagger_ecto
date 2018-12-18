@@ -7,17 +7,7 @@ defmodule SwaggerEcto.Schema do
   defmacro __using__(_opts) do
     quote do
       use Ecto.Schema
-      import Ecto.Schema
       import SwaggerEcto.Schema
-      import SwaggerEcto.Helpers
-      @before_compile SwaggerEcto.Schema
-    end
-  end
-
-  @doc false
-  defmacro __before_compile__(_env) do
-    quote do
-
     end
   end
 
