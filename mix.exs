@@ -23,6 +23,8 @@ defmodule SwaggerEcto.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:phoenix_swagger, "~> 0.8.1"},
+      {:ecto, "~> 2.1.6"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.14", only: :dev}
