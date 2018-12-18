@@ -65,4 +65,110 @@ defmodule SwaggerEcto.SchemaTest do
     }
   end
 
+  defmodule TestSchemaWithAssoc do
+    use SwaggerEcto.Schema
+
+    swagger_schema "people" do
+      has_one :country, Country
+    end
+
+  end
+
+  test "it works with assocs" do
+    assert TestSchemaWithAssoc.__schema__(:swagger) == %{
+      "title" => "Person",
+      "required" => [
+        "id",
+        "country"
+      ],
+      "properties" => %{
+        "id" => %{
+          "type" => "integer"
+        },
+        "country" => %{
+          "$ref" => "#/definitions/Country"
+        }
+      }
+    }
+  end
+
+  defmodule TestSchemaWithEmbed do
+    use SwaggerEcto.Schema
+
+    swagger_schema "people" do
+      embeds_one :country, Country
+    end
+
+  end
+
+  test "it works with embeds" do
+    assert TestSchemaWithAssoc.__schema__(:swagger) == %{
+      "title" => "Person",
+      "required" => [
+        "id",
+        "country"
+      ],
+      "properties" => %{
+        "id" => %{
+          "type" => "integer"
+        },
+        "country" => %{
+          "$ref" => "#/definitions/Country"
+        }
+      }
+    }
+  end
+
+  defmodule TestSchemaWithTimestamps do
+    use SwaggerEcto.Schema
+
+    swagger_schema "people" do
+      timestamps()
+    end
+
+  end
+
+  test "it works with timestamps macro" do
+    assert TestSchemaWithTimestamps.__schema__(:swagger) == %{
+      "title" => "Person",
+      "required" => [
+        "id",
+        "inserted_at",
+        "updated_at"
+      ],
+      "properties" => %{
+        "id" => %{
+          "type" => "integer"
+        },
+        "inserted_at" => %{
+          "type" => "string"
+        },
+        "updated_at" => %{
+          "type" => "string"
+        }
+      }
+    }
+  end
+
+  defmodule EmbeddedSchema do
+    use SwaggerEcto.Schema
+    swagger_embedded_schema "countries" do
+      field :name, :string
+    end
+  end
+
+  test "it works with embedded ecto schemas" do
+    assert EmbeddedSchema.__schema__(:swagger) == %{
+      "title" => "Country",
+      "required" => [
+        "name"
+      ],
+      "properties" => %{
+        "name" => %{
+          "type" => "string"
+        }
+      }
+    }
+  end
+
 end

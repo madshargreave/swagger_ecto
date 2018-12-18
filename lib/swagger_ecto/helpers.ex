@@ -28,29 +28,54 @@ defmodule SwaggerEcto.Helpers do
           expr
       end
     end)
-    |> Enum.reduce(%{}, fn expr, acc ->
-      value = property(expr)
+    |> Enum.reduce(%PhoenixSwagger.Schema{}, fn expr, acc ->
+      value = property(acc, expr)
       Map.merge(acc, value)
     end)
   end
 
-  defp property({:field, _, [field, type, _opts]}) do
+  defp property(schema, {:field, _, [field, type, _opts]}) do
     %{
-      field => %{
-        type: type
-      }
+      field => PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, type)
+    }
+  end
+
+  defp property(schema, {
+    op,
+    _,
+    [
+      field,
+      {:__aliases__, _, [type]},
+      _opts
+    ]
+  }) when op in [:has_one, :embeds_one] do
+    %{
+      field => PhoenixSwagger.Schema.ref(type)
+    }
+  end
+
+  defp property(schema, {:timestamps, _, []}) do
+    %{
+      inserted_at: PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, :string),
+      updated_at: PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, :string)
     }
   end
 
   defp required(exprs) do
     exprs
-    |> Enum.map(fn expr ->
+    |> Enum.flat_map(fn expr ->
       case expr do
         {operation, meta, [field, type]} ->
           opts = []
-          {operation, meta, [field, type, opts]}
+          [{operation, meta, [field, type, opts]}]
+        {:timestamps, meta, []} ->
+          opts = []
+          [
+            {:field, meta, [:inserted_at, :string, opts]},
+            {:field, meta, [:updated_at, :string, opts]}
+          ]
         _ ->
-          expr
+          [expr]
       end
     end)
     |> Enum.reduce([], fn {_operation, _, [field, _type, opts]}, acc ->

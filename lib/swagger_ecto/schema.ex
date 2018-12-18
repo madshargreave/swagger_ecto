@@ -21,6 +21,13 @@ defmodule SwaggerEcto.Schema do
     end
   end
 
+  defmacro swagger_embedded_schema(source, block) do
+    quote do
+      Ecto.Schema.embedded_schema unquote(block)
+      SwaggerEcto.Schema.embedded_schema unquote(source), unquote(block)
+    end
+  end
+
   @doc false
   defmacro schema(source, block) do
     exprs =
@@ -51,6 +58,24 @@ defmodule SwaggerEcto.Schema do
           })
         }
         |> PhoenixSwagger.to_json
+      end
+    end
+  end
+
+  @doc false
+  defmacro embedded_schema(source, block) do
+    exprs =
+      case block do
+        [do: {:__block__, _, exprs}] -> exprs
+        [do: expr] when is_tuple(expr) -> [expr]
+      end
+
+    schema = SwaggerEcto.Helpers.create_schema(source, exprs)
+    escaped = Macro.escape(schema)
+    quote do
+      def __schema__(:swagger) do
+        schema = unquote(escaped)
+        PhoenixSwagger.to_json(schema)
       end
     end
   end
