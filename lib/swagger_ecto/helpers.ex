@@ -43,9 +43,9 @@ defmodule SwaggerEcto.Helpers do
     end)
   end
 
-  defp property(schema, {:field, _, [field, type, _opts]}) do
+  defp property(schema, {:field, _, [field, raw_type, _opts]}) do
     %{
-      field => PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, type)
+      field => PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, type(raw_type))
     }
   end
 
@@ -69,6 +69,10 @@ defmodule SwaggerEcto.Helpers do
       updated_at: PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, :string)
     }
   end
+
+  defp type(:naive_datetime), do: :string
+  defp type(:date), do: :string
+  defp type(type), do: type
 
   defp required(exprs) do
     exprs
