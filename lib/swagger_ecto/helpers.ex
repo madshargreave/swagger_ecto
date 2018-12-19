@@ -72,6 +72,7 @@ defmodule SwaggerEcto.Helpers do
 
   defp type(:naive_datetime), do: :string
   defp type(:date), do: :string
+  defp type(:map), do: :object
   defp type(type), do: type
 
   defp required(exprs) do
