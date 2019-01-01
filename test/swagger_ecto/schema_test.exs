@@ -102,6 +102,38 @@ defmodule SwaggerEcto.SchemaTest do
     }
   end
 
+  defmodule TestSchemaWithOneToManyAssoc do
+    use SwaggerEcto.Schema
+
+    swagger_schema "people" do
+      has_many :countries, Country
+      embeds_many :other_countries, Country
+    end
+
+  end
+
+  test "it works with one-to-many assocs" do
+    assert TestSchemaWithOneToManyAssoc.__swagger__() == %{
+      "title" => "Person",
+      "required" => [
+        "id",
+        "countries",
+        "other_countries"
+      ],
+      "properties" => %{
+        "id" => %{
+          "type" => "integer"
+        },
+        "countries" => %{
+          "$ref" => "#/definitions/Countries"
+        },
+        "other_countries" => %{
+          "$ref" => "#/definitions/Countries"
+        }
+      }
+    }
+  end
+
   defmodule TestSchemaWithEmbed do
     use SwaggerEcto.Schema
 

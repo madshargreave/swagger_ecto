@@ -57,9 +57,25 @@ defmodule SwaggerEcto.Helpers do
       {:__aliases__, _, [type]},
       _opts
     ]
-  }) when op in [:has_one, :embeds_one, :belongs_to, :has_many, :embeds_many] do
+  }) when op in [:has_one, :embeds_one, :belongs_to] do
     %{
       field => PhoenixSwagger.Schema.ref(type)
+    }
+  end
+
+  defp property(schema, {
+    op,
+    _,
+    [
+      field,
+      {:__aliases__, _, [type]},
+      _opts
+    ]
+  }) when op in [:has_many, :embeds_many] do
+    plural_field = Inflex.pluralize(field) |> String.to_atom
+    plural_type = Inflex.pluralize(type) |> String.to_atom
+    %{
+      plural_field => PhoenixSwagger.Schema.ref(plural_type)
     }
   end
 
