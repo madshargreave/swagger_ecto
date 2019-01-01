@@ -3,16 +3,16 @@ defmodule SwaggerEcto.Helpers do
   Helpers for defining schemas
   """
 
-  def create_schema(source, exprs) do
+  def create_schema(source, exprs, env) do
     %PhoenixSwagger.Schema{
       title: title(source),
-      properties: properties(exprs),
+      properties: properties(exprs, env),
       required: required(exprs)
     }
   end
 
-  def create_schema_list(source, exprs) do
-    schema = create_schema(source, exprs)
+  def create_schema_list(source, exprs, env) do
+    schema = create_schema(source, exprs, env)
     %PhoenixSwagger.Schema{
       title: Inflex.pluralize(schema.title),
       type: :array,
@@ -26,7 +26,7 @@ defmodule SwaggerEcto.Helpers do
     |> Macro.camelize
   end
 
-  defp properties(exprs) do
+  defp properties(exprs, env) do
     exprs
     |> Enum.map(fn expr ->
       case expr do
@@ -38,12 +38,12 @@ defmodule SwaggerEcto.Helpers do
       end
     end)
     |> Enum.reduce(%PhoenixSwagger.Schema{}, fn expr, acc ->
-      value = property(acc, expr)
+      value = property(acc, expr, env)
       Map.merge(acc, value)
     end)
   end
 
-  defp property(schema, {:field, _, [field, raw_type, _opts]}) do
+  defp property(schema, {:field, _, [field, raw_type, _opts]}, env) do
     %{
       field => PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, type(raw_type))
     }
@@ -54,12 +54,18 @@ defmodule SwaggerEcto.Helpers do
     _,
     [
       field,
-      {:__aliases__, _, [type]},
+      {:__aliases__, _, [type]} = aliases,
       _opts
     ]
-  }) when op in [:has_one, :embeds_one, :belongs_to] do
+  } = ast, env) when op in [:has_one, :embeds_one, :belongs_to] do
+    resolved_type =
+        expand_alias(aliases, env)
+        |> apply(:__swagger__, [:name])
+        |> Inflex.singularize
+        |> Macro.camelize()
+        |> String.to_atom
     %{
-      field => PhoenixSwagger.Schema.ref(type)
+      field => PhoenixSwagger.Schema.ref(resolved_type)
     }
   end
 
@@ -68,18 +74,23 @@ defmodule SwaggerEcto.Helpers do
     _,
     [
       field,
-      {:__aliases__, _, [type]},
+      {:__aliases__, _, [type]} = aliases,
       _opts
     ]
-  }) when op in [:has_many, :embeds_many] do
+  }, env) when op in [:has_many, :embeds_many] do
     plural_field = Inflex.pluralize(field) |> String.to_atom
-    plural_type = Inflex.pluralize(type) |> String.to_atom
+    resolved_type =
+        expand_alias(aliases, env)
+        |> apply(:__swagger__, [:name])
+        |> Inflex.pluralize
+        |> Macro.camelize()
+        |> String.to_atom
     %{
-      plural_field => PhoenixSwagger.Schema.ref(plural_type)
+      plural_field => PhoenixSwagger.Schema.ref(resolved_type)
     }
   end
 
-  defp property(schema, {:timestamps, _, []}) do
+  defp property(schema, {:timestamps, _, []}, env) do
     %{
       inserted_at: PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, :string),
       updated_at: PhoenixSwagger.Schema.type(%PhoenixSwagger.Schema{}, :string)
@@ -117,5 +128,10 @@ defmodule SwaggerEcto.Helpers do
       end
     end)
   end
+
+  defp expand_alias({:__aliases__, _, _} = ast, env),
+    do: Macro.expand(ast, env)
+  defp expand_alias(ast, _env),
+    do: ast
 
 end

@@ -1,19 +1,24 @@
 defmodule SwaggerEcto.SchemaTest do
   use ExUnit.Case
 
-  defmodule TestSchema do
+  defmodule PersonSchema do
     use SwaggerEcto.Schema
-
     swagger_schema "people" do
       field :name, :string
       field :country, :string
       field :age, :integer, required: false
     end
+  end
 
+  defmodule CountrySchema do
+    use SwaggerEcto.Schema
+    swagger_schema "countries" do
+      field :name, :string
+    end
   end
 
   test "it defines a swagger schema" do
-    assert TestSchema.__swagger__() == %{
+    assert PersonSchema.__swagger__() == %{
       "title" => "Person",
       "required" => [
         "id",
@@ -38,7 +43,7 @@ defmodule SwaggerEcto.SchemaTest do
   end
 
   test "it works with lists" do
-    assert TestSchema.__swagger__(:list) == %{
+    assert PersonSchema.__swagger__(:list) == %{
       "title" => "People",
       "type" => "array",
       "items" => %{
@@ -77,9 +82,10 @@ defmodule SwaggerEcto.SchemaTest do
 
   defmodule TestSchemaWithAssoc do
     use SwaggerEcto.Schema
+    alias SwaggerEcto.SchemaTest.PersonSchema
 
     swagger_schema "people" do
-      has_one :country, Country
+      has_one :parent, PersonSchema
     end
 
   end
@@ -89,14 +95,14 @@ defmodule SwaggerEcto.SchemaTest do
       "title" => "Person",
       "required" => [
         "id",
-        "country"
+        "parent"
       ],
       "properties" => %{
         "id" => %{
           "type" => "integer"
         },
-        "country" => %{
-          "$ref" => "#/definitions/Country"
+        "parent" => %{
+          "$ref" => "#/definitions/Person"
         }
       }
     }
@@ -106,8 +112,8 @@ defmodule SwaggerEcto.SchemaTest do
     use SwaggerEcto.Schema
 
     swagger_schema "people" do
-      has_many :countries, Country
-      embeds_many :other_countries, Country
+      has_many :countries, CountrySchema
+      embeds_many :other_countries, CountrySchema
     end
 
   end
@@ -138,13 +144,13 @@ defmodule SwaggerEcto.SchemaTest do
     use SwaggerEcto.Schema
 
     swagger_schema "people" do
-      embeds_one :country, Country
+      embeds_one :country, CountrySchema
     end
 
   end
 
   test "it works with embeds" do
-    assert TestSchemaWithAssoc.__swagger__() == %{
+    assert TestSchemaWithEmbed.__swagger__() == %{
       "title" => "Person",
       "required" => [
         "id",
