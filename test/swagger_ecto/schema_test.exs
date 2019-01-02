@@ -12,7 +12,7 @@ defmodule SwaggerEcto.SchemaTest do
 
   defmodule CountrySchema do
     use SwaggerEcto.Schema
-    swagger_schema "countries" do
+    swagger_embedded_schema "countries" do
       field :name, :string
     end
   end
@@ -111,7 +111,7 @@ defmodule SwaggerEcto.SchemaTest do
   defmodule TestSchemaWithOneToManyAssoc do
     use SwaggerEcto.Schema
 
-    swagger_schema "people" do
+    swagger_embedded_schema "people" do
       has_many :countries, CountrySchema
       embeds_many :other_countries, CountrySchema
     end
@@ -122,14 +122,10 @@ defmodule SwaggerEcto.SchemaTest do
     assert TestSchemaWithOneToManyAssoc.__swagger__() == %{
       "title" => "Person",
       "required" => [
-        "id",
         "countries",
         "other_countries"
       ],
       "properties" => %{
-        "id" => %{
-          "type" => "integer"
-        },
         "countries" => %{
           "$ref" => "#/definitions/Countries"
         },

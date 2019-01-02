@@ -100,6 +100,8 @@ defmodule SwaggerEcto.Helpers do
   defp type(:naive_datetime), do: :string
   defp type(:date), do: :string
   defp type(:map), do: :object
+  defp type(:binary_id), do: :string
+  defp type(:uuid), do: :string
   defp type(type), do: type
 
   defp required(exprs) do
