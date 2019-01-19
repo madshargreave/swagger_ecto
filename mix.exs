@@ -4,7 +4,7 @@ defmodule SwaggerEcto.MixProject do
   def project do
     [
       app: :swagger_ecto,
-      version: "0.2.9",
+      version: "0.2.10",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -25,7 +25,7 @@ defmodule SwaggerEcto.MixProject do
     [
       {:phoenix_swagger, "~> 0.8.1"},
       {:inflex, "~> 1.10.0"},
-      {:ecto, "~> 2.1.6"},
+      {:ecto_sql, "~> 3.0"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.14", only: :dev}
